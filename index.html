@@ -151,9 +151,10 @@
         
         // Function to set up the real-time listener for the user's records
         const setupRealtimeListener = () => {
-            // The collection path is now public, but we filter by userId to ensure privacy.
+            // New: The collection path is now public to match the admin view.
             const allRecordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-            const q = query(allRecordsCollectionRef, where("userId", "==", userId));
+            // We are no longer filtering by userId. This will show all records for all users.
+            const q = query(allRecordsCollectionRef);
 
             onSnapshot(q, (snapshot) => {
                 const recordsTableBody = document.getElementById('recordsTableBody');
