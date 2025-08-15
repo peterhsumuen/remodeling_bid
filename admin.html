@@ -55,13 +55,23 @@
 
     <!-- Firebase SDKs -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collectionGroup, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
         
         // --- IMPORTANT: Global variables provided by the Canvas environment ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
+          authDomain: "remodelingbid.firebaseapp.com",
+          projectId: "remodelingbid",
+          storageBucket: "remodelingbid.firebasestorage.app",
+          messagingSenderId: "232389086436",
+          appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
+          measurementId: "G-R3T0V1XVMV"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // --- Firebase Initialization ---
@@ -75,7 +85,6 @@
                     db = getFirestore(app);
                 }
 
-                // Sign in the user. If an auth token is provided, use it; otherwise, sign in anonymously.
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
@@ -84,7 +93,6 @@
 
                 console.log("Firebase initialized and user signed in.");
 
-                // Set up the real-time listener for all user records
                 setupRealtimeListener();
 
             } catch (error) {
@@ -95,11 +103,9 @@
         
         // Function to set up the real-time listener for all user records
         const setupRealtimeListener = () => {
-            // Use collectionGroup to query across all 'remodeling_records' collections
-            const recordsCollectionGroupRef = collectionGroup(db, 'remodeling_records');
-            const q = query(recordsCollectionGroupRef);
+            const recordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+            const q = query(recordsCollectionRef);
 
-            // Listen for real-time changes
             onSnapshot(q, (snapshot) => {
                 const recordsTableBody = document.getElementById('recordsTableBody');
                 recordsTableBody.innerHTML = '';
@@ -113,16 +119,13 @@
 
                 snapshot.forEach((doc) => {
                     const record = doc.data();
-                    const userIdFromPath = doc.ref.parent.parent.id; // Extract user ID from the document path
                     const row = recordsTableBody.insertRow();
                     row.className = 'bg-white hover:bg-gray-50';
 
-                    // Format the date for display
                     const date = record.timestamp ? new Date(record.timestamp.toMillis()).toLocaleDateString() : 'N/A';
 
-                    // Add cells with the record data
                     const cells = [
-                        userIdFromPath,
+                        record.userId || 'N/A',
                         record.address || 'N/A',
                         record.room || 'N/A',
                         record.squareFootage || 'N/A',
