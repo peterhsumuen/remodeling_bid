@@ -101,7 +101,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // --- IMPORTANT: Global variables provided by the Canvas environment ---
@@ -120,7 +120,6 @@
                     db = getFirestore(app);
                 }
 
-                // Sign in the user. If an auth token is provided, use it; otherwise, sign in anonymously.
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
@@ -142,12 +141,10 @@
         
         // Function to set up the real-time listener for the user's records
         const setupRealtimeListener = () => {
-            // The collection path is specific to the user's UID to ensure they only see their own data.
-            // This aligns with Firebase security rules.
-            const userRecordsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/remodeling_records`);
-            const q = query(userRecordsCollectionRef);
+            // The collection path is now public, but we filter by userId to ensure privacy.
+            const allRecordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+            const q = query(allRecordsCollectionRef, where("userId", "==", userId));
 
-            // Listen for real-time changes
             onSnapshot(q, (snapshot) => {
                 const recordsTableBody = document.getElementById('recordsTableBody');
                 recordsTableBody.innerHTML = '';
@@ -220,22 +217,7 @@
                 return;
             }
 
-            // --- The core calculation logic is here. This is where you can add future rules. ---
             let pricePerSF = 250;
-            // Example of future logic:
-            /*
-            if (room === 'kitchen' && squareFootage > 200) {
-                // Apply a special price for large kitchens
-                pricePerSF = 275;
-            } else if (room === 'bathroom' && squareFootage < 50) {
-                // Apply a fixed price for small bathrooms
-                calculatedPrice = 40000;
-                priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
-                resultContainer.classList.remove('hidden');
-                saveBtn.disabled = false;
-                return;
-            }
-            */
             
             calculatedPrice = squareFootage * pricePerSF;
             priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
@@ -254,6 +236,7 @@
             }
 
             const recordData = {
+                userId: userId, // New: Store the user ID with the record
                 address: address,
                 room: room,
                 squareFootage: squareFootage,
@@ -262,8 +245,8 @@
             };
 
             try {
-                // Add the new document to the user-specific collection
-                const recordsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/remodeling_records`);
+                // New: Save the record to a public collection
+                const recordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
                 await addDoc(recordsCollectionRef, recordData);
                 
                 showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
