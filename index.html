@@ -365,6 +365,13 @@
                 });
             });
 
+            // Added check for no image data
+            if (base64Images.length === 0) {
+                hideLoading("Analysis failed. No valid image data found in the PDF.");
+                showMessage("Analysis failed. The PDF appears to be empty or corrupted.", 'bg-red-100 text-red-700');
+                return;
+            }
+
             const payload = { 
                 contents: [{ parts }],
                 generationConfig: {
@@ -472,6 +479,13 @@
 
                 await page.render({ canvasContext, viewport }).promise;
                 base64Images.push(canvas.toDataURL('image/png').split(',')[1]);
+
+                // Check for valid image data before calling the API
+                if (base64Images.length === 0 || !base64Images[0]) {
+                    hideLoading("Analysis failed. The PDF might be empty or corrupted.");
+                    showMessage("Analysis failed. Please try a different PDF.", 'bg-red-100 text-red-700');
+                    return;
+                }
 
                 await processWithGemini(base64Images);
             };
