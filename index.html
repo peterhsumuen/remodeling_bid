@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remodeling Price Calculator</title>
-    <!-- Use Tailwind CSS for a modern, responsive design -->
+    <title>Remodeling Admin View</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use the Inter font from Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +14,7 @@
             background-color: #f3f4f6;
         }
         .container {
-            max-width: 900px;
+            max-width: 1200px;
         }
         .rounded-card {
             border-radius: 1.5rem;
@@ -24,95 +22,47 @@
         .shadow-md-custom {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        input, select {
-            transition: all 0.2s ease-in-out;
-        }
-        input:focus, select:focus {
-            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.5); /* A custom focus ring color */
-            border-color: #64748b;
-        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
-    <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom mb-8">
-        <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Remodeling Price Calculator</h1>
-        
-        <!-- New input field for the user's name -->
-        <div class="mb-6">
-            <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-            <input type="text" id="userName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50" placeholder="e.g., Jane Doe">
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Project Address</label>
-                <input type="text" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="room" class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
-                <select id="room" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-                    <option value="kitchen">Kitchen</option>
-                    <option value="bathroom">Bathroom</option>
-                    <option value="living_room">Living Room</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <label for="squareFootage" class="block text-sm font-medium text-gray-700 mb-1">Remodeling Square Feet (SF)</label>
-            <input type="number" id="squareFootage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-        </div>
-
-        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
-            <button id="calculateBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition ease-in-out duration-150">
-                Calculate Price
-            </button>
-            <button id="saveBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-slate-600 bg-slate-100 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition ease-in-out duration-150" disabled>
-                Save Record
-            </button>
-        </div>
-
-        <div id="resultContainer" class="text-center p-4 bg-gray-100 rounded-md shadow-inner hidden">
-            <h2 class="text-xl font-semibold text-gray-800">Calculated Price:</h2>
-            <p id="priceResult" class="text-2xl font-bold text-slate-700 mt-2"></p>
-        </div>
-        
-        <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
-    </div>
-    
     <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom">
-        <h2 class="text-2xl font-bold text-center text-slate-800 mb-4">Your Past Records</h2>
-        <!-- The userIdDisplay has been removed as the name will be in the table now -->
+        <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Remodeling Admin Dashboard</h1>
+        
+        <div class="text-right mb-4">
+            Welcome, <span id="displayUsername" class="font-semibold text-blue-600">Guest</span>!
+            <button id="logoutButton" class="ml-4 px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">Logout</button>
+        </div>
+
+        <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
+                        <th scope="col" scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
                 </thead>
                 <tbody id="recordsTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Records will be dynamically added here -->
-                </tbody>
+                    </tbody>
             </table>
             <div id="noRecords" class="text-center text-gray-500 mt-4 hidden">No records found.</div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
         
         // --- IMPORTANT: Global variables provided by the Canvas environment ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
+
         // Your web app's Firebase configuration
         const firebaseConfig = {
           apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
@@ -126,7 +76,10 @@
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // --- Firebase Initialization ---
-        let app, db, auth, userId;
+        let app, db, auth;
+
+        const displayUsernameSpan = document.getElementById('displayUsername');
+        const logoutButton = document.getElementById('logoutButton');
 
         const initFirebase = async () => {
             try {
@@ -136,21 +89,31 @@
                     db = getFirestore(app);
                 }
 
-                // The userId is now obtained from the anonymous sign-in, but is not used to filter.
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // We keep the anonymous userId in case we need to track it, but the new code
-                // will save the user's provided name as a separate field.
-                userId = auth.currentUser.uid;
-                
-                console.log("Firebase initialized and user signed in:", userId);
+                // Check authentication state
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // User is signed in, display their email (used as username in Firebase Auth)
+                        const storedUsername = sessionStorage.getItem('loggedInUser');
+                        displayUsernameSpan.textContent = storedUsername || user.email || 'Guest';
+                        setupRealtimeListener(); // Only fetch data if logged in
+                    } else {
+                        // User is signed out, redirect to login page
+                        console.log("No user signed in. Redirecting to login.");
+                        window.location.href = 'login.html'; // Redirect to your login page
+                    }
+                });
 
-                // Set up the real-time listener for all public records
-                setupRealtimeListener();
+                logoutButton.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        sessionStorage.removeItem('loggedInUser'); // Clear stored username
+                        console.log("User signed out.");
+                        // The onAuthStateChanged listener will handle the redirect to login.html
+                    } catch (error) {
+                        console.error("Error signing out:", error);
+                        showMessage("Failed to log out.", 'bg-red-100 text-red-700');
+                    }
+                });
 
             } catch (error) {
                 console.error("Error initializing Firebase or signing in:", error);
@@ -158,12 +121,10 @@
             }
         };
         
-        // Function to set up the real-time listener for all records in the public collection
+        // Function to set up the real-time listener for all user records
         const setupRealtimeListener = () => {
-            // New: The collection path is now public to match the admin view.
-            const allRecordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-            // We no longer filter by userId, as all records should be shown.
-            const q = query(allRecordsCollectionRef);
+            const recordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+            const q = query(recordsCollectionRef);
 
             onSnapshot(q, (snapshot) => {
                 const recordsTableBody = document.getElementById('recordsTableBody');
@@ -181,11 +142,10 @@
                     const row = recordsTableBody.insertRow();
                     row.className = 'bg-white hover:bg-gray-50';
 
-                    // Format the date for display
                     const date = record.timestamp ? new Date(record.timestamp.toMillis()).toLocaleDateString() : 'N/A';
 
-                    // Add cells with the record data
                     const cells = [
+                        record.userName || 'N/A', // Display the userName field
                         record.address || 'N/A',
                         record.room || 'N/A',
                         record.squareFootage || 'N/A',
@@ -205,21 +165,9 @@
             });
         };
         
-        // --- UI Element References ---
-        const userNameInput = document.getElementById('userName'); // New element reference
-        const addressInput = document.getElementById('address');
-        const roomSelect = document.getElementById('room');
-        const squareFootageInput = document.getElementById('squareFootage');
-        const calculateBtn = document.getElementById('calculateBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const resultContainer = document.getElementById('resultContainer');
-        const priceResult = document.getElementById('priceResult');
-        const messageBox = document.getElementById('messageBox');
-        
-        let calculatedPrice = 0;
-
         // --- Helper Functions ---
         const showMessage = (text, className) => {
+            const messageBox = document.getElementById('messageBox');
             messageBox.textContent = text;
             messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
             messageBox.classList.remove('hidden');
@@ -228,70 +176,8 @@
             }, 5000);
         };
 
-        const calculatePrice = () => {
-            const squareFootage = parseFloat(squareFootageInput.value);
-            const room = roomSelect.value;
-            
-            if (isNaN(squareFootage) || squareFootage <= 0) {
-                showMessage('Please enter a valid square footage.', 'bg-orange-100 text-orange-700');
-                resultContainer.classList.add('hidden');
-                return;
-            }
-
-            let pricePerSF = 250;
-            
-            calculatedPrice = squareFootage * pricePerSF;
-            priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
-            resultContainer.classList.remove('hidden');
-            saveBtn.disabled = false;
-        };
-
-        const saveRecord = async () => {
-            const userName = userNameInput.value.trim(); // Get the user's name
-            const address = addressInput.value.trim();
-            const room = roomSelect.value;
-            const squareFootage = parseFloat(squareFootageInput.value);
-
-            if (!userName || !address || isNaN(squareFootage) || squareFootage <= 0) {
-                showMessage('Please fill in your name and all fields before saving.', 'bg-orange-100 text-orange-700');
-                return;
-            }
-
-            const recordData = {
-                userName: userName, // New: Store the user-provided name
-                address: address,
-                room: room,
-                squareFootage: squareFootage,
-                price: calculatedPrice,
-                timestamp: serverTimestamp()
-            };
-
-            try {
-                // Save the record to the public collection
-                const recordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-                await addDoc(recordsCollectionRef, recordData);
-                
-                showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
-                
-                // Reset form fields
-                addressInput.value = '';
-                squareFootageInput.value = '';
-                resultContainer.classList.add('hidden');
-                saveBtn.disabled = true;
-
-            } catch (error) {
-                console.error("Error saving record:", error);
-                showMessage('Failed to save record. Please check the console.', 'bg-red-100 text-red-700');
-            }
-        };
-
-        // --- Event Listeners ---
-        calculateBtn.addEventListener('click', calculatePrice);
-        saveBtn.addEventListener('click', saveRecord);
-
         // Initialize Firebase on window load
         window.onload = initFirebase;
-
     </script>
 </body>
 </html>
