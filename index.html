@@ -1,297 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remodeling Price Calculator</title>
-    <!-- Use Tailwind CSS for a modern, responsive design -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use the Inter font from Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .container {
-            max-width: 900px;
-        }
-        .rounded-card {
-            border-radius: 1.5rem;
-        }
-        .shadow-md-custom {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        input, select {
-            transition: all 0.2s ease-in-out;
-        }
-        input:focus, select:focus {
-            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.5); /* A custom focus ring color */
-            border-color: #64748b;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remodeling Price Calculator</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .container { max-width: 900px; }
+    .rounded-card { border-radius: 1.5rem; }
+    .shadow-md-custom { box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
+    input, select { transition: all .2s ease-in-out; }
+    input:focus, select:focus { box-shadow: 0 0 0 3px rgba(100,116,139,.5); border-color: #64748b; }
+  </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
-    <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom mb-8">
-        <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Remodeling Price Calculator</h1>
-        
-        <!-- New input field for the user's name -->
-        <div class="mb-6">
-            <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-            <input type="text" id="userName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50" placeholder="e.g., Jane Doe">
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Project Address</label>
-                <input type="text" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="room" class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
-                <select id="room" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-                    <option value="kitchen">Kitchen</option>
-                    <option value="bathroom">Bathroom</option>
-                    <option value="living_room">Living Room</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <label for="squareFootage" class="block text-sm font-medium text-gray-700 mb-1">Remodeling Square Feet (SF)</label>
-            <input type="number" id="squareFootage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-slate-500 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
-        </div>
-
-        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
-            <button id="calculateBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition ease-in-out duration-150">
-                Calculate Price
-            </button>
-            <button id="saveBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-slate-600 bg-slate-100 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition ease-in-out duration-150" disabled>
-                Save Record
-            </button>
-        </div>
-
-        <div id="resultContainer" class="text-center p-4 bg-gray-100 rounded-md shadow-inner hidden">
-            <h2 class="text-xl font-semibold text-gray-800">Calculated Price:</h2>
-            <p id="priceResult" class="text-2xl font-bold text-slate-700 mt-2"></p>
-        </div>
-        
-        <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
-    </div>
-    
-    <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom">
-        <h2 class="text-2xl font-bold text-center text-slate-800 mb-4">Your Past Records</h2>
-        <!-- The userIdDisplay has been removed as the name will be in the table now -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    </tr>
-                </thead>
-                <tbody id="recordsTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Records will be dynamically added here -->
-                </tbody>
-            </table>
-            <div id="noRecords" class="text-center text-gray-500 mt-4 hidden">No records found.</div>
-        </div>
+  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom mb-8">
+    <div class="flex items-center justify-between mb-2">
+      <h1 class="text-3xl font-bold text-slate-800">Remodeling Price Calculator</h1>
+      <button id="logoutButton" class="hidden px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">
+        Logout
+      </button>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-        
-        // --- IMPORTANT: Global variables provided by the Canvas environment ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
-          authDomain: "remodelingbid.firebaseapp.com",
-          projectId: "remodelingbid",
-          storageBucket: "remodelingbid.firebasestorage.app",
-          messagingSenderId: "232389086436",
-          appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
-          measurementId: "G-R3T0V1XVMV"
+    <!-- User Name（自動帶入登入者，唯讀） -->
+    <div class="mb-6">
+      <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
+      <input
+        type="text"
+        id="userName"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 bg-gray-100 cursor-not-allowed"
+        placeholder="email will appear here"
+        readonly
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Project Address</label>
+        <input type="text" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+      </div>
+      <div>
+        <label for="room" class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
+        <select id="room" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3">
+          <option value="kitchen">Kitchen</option>
+          <option value="bathroom">Bathroom</option>
+          <option value="living_room">Living Room</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <label for="squareFootage" class="block text-sm font-medium text-gray-700 mb-1">Remodeling Square Feet (SF)</label>
+      <input type="number" id="squareFootage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+    </div>
+
+    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
+      <button id="calculateBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700">
+        Calculate Price
+      </button>
+      <button id="saveBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-slate-600 bg-slate-100 hover:bg-slate-200" disabled>
+        Save Record
+      </button>
+    </div>
+
+    <div id="resultContainer" class="text-center p-4 bg-gray-100 rounded-md shadow-inner hidden">
+      <h2 class="text-xl font-semibold text-gray-800">Calculated Price:</h2>
+      <p id="priceResult" class="text-2xl font-bold text-slate-700 mt-2"></p>
+    </div>
+
+    <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
+  </div>
+
+  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom">
+    <h2 class="text-2xl font-bold text-center text-slate-800 mb-4">Your Past Records</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+      <div id="noRecords" class="text-center text-gray-500 mt-4 hidden">No records found.</div>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    // Canvas env var fallback
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
+      authDomain: "remodelingbid.firebaseapp.com",
+      projectId: "remodelingbid",
+      storageBucket: "remodelingbid.firebasestorage.app",
+      messagingSenderId: "232389086436",
+      appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
+      measurementId: "G-R3T0V1XVMV"
+    };
+
+    // UI refs
+    const userNameInput   = document.getElementById('userName');
+    const addressInput    = document.getElementById('address');
+    const roomSelect      = document.getElementById('room');
+    const squareInput     = document.getElementById('squareFootage');
+    const calcBtn         = document.getElementById('calculateBtn');
+    const saveBtn         = document.getElementById('saveBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const priceResult     = document.getElementById('priceResult');
+    const messageBox      = document.getElementById('messageBox');
+    const logoutButton    = document.getElementById('logoutButton');
+
+    let app, db, auth, calculatedPrice = 0;
+
+    const showMessage = (text, className) => {
+      messageBox.textContent = text;
+      messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
+      messageBox.classList.remove('hidden');
+      setTimeout(() => messageBox.classList.add('hidden'), 5000);
+    };
+
+    const calculatePrice = () => {
+      const sf = parseFloat(squareInput.value);
+      if (isNaN(sf) || sf <= 0) {
+        showMessage('Please enter a valid square footage.', 'bg-orange-100 text-orange-700');
+        resultContainer.classList.add('hidden');
+        saveBtn.disabled = true;
+        return;
+      }
+      const pricePerSF = 250; // 可按需求調整/動態化
+      calculatedPrice = sf * pricePerSF;
+      priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
+      resultContainer.classList.remove('hidden');
+      saveBtn.disabled = false;
+    };
+
+    const saveRecord = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage('Session expired. Please log in again.', 'bg-red-100 text-red-700');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const email = sessionStorage.getItem('loggedInUser') || user.email || '';
+      const address = addressInput.value.trim();
+      const room = roomSelect.value;
+      const sf = parseFloat(squareInput.value);
+
+      if (!email || !address || isNaN(sf) || sf <= 0) {
+        showMessage('Please fill in all fields before saving.', 'bg-orange-100 text-orange-700');
+        return;
+      }
+
+      const recordData = {
+        userName: email,             // 強制用登入者 email
+        address,
+        room,
+        squareFootage: sf,
+        price: calculatedPrice,
+        timestamp: serverTimestamp()
+      };
+
+      try {
+        const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+        await addDoc(recordsRef, recordData);
+
+        showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
+        addressInput.value = '';
+        squareInput.value = '';
+        resultContainer.classList.add('hidden');
+        saveBtn.disabled = true;
+      } catch (err) {
+        console.error('Error saving record:', err);
+        showMessage('Failed to save record. Please check the console.', 'bg-red-100 text-red-700');
+      }
+    };
+
+    const setupRealtimeListener = () => {
+      const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+      const q = query(recordsRef);
+
+      onSnapshot(q, (snapshot) => {
+        const tbody = document.getElementById('recordsTableBody');
+        const noRecords = document.getElementById('noRecords');
+        tbody.innerHTML = '';
+
+        if (snapshot.empty) {
+          noRecords.classList.remove('hidden');
+          return;
+        }
+        noRecords.classList.add('hidden');
+
+        snapshot.forEach((doc) => {
+          const r = doc.data();
+          const tr = tbody.insertRow();
+          tr.className = 'bg-white hover:bg-gray-50';
+
+          const date = r.timestamp ? new Date(r.timestamp.toMillis()).toLocaleDateString() : 'N/A';
+          const cells = [
+            r.address || 'N/A',
+            r.room || 'N/A',
+            r.squareFootage || 'N/A',
+            `$${(r.price || 0).toFixed(2)}`,
+            date
+          ];
+
+          cells.forEach((text, i) => {
+            const td = tr.insertCell(i);
+            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+            td.textContent = text;
+          });
+        });
+      }, (err) => {
+        console.error('Error listening to records:', err);
+        showMessage('Failed to load records.', 'bg-red-100 text-red-700');
+      });
+    };
+
+    const initFirebase = async () => {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+
+      // 監聽登入狀態
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+        // 填入與鎖定使用者 email
+        const email = sessionStorage.getItem('loggedInUser') || user.email || 'Unknown';
+        userNameInput.value = email;
+        userNameInput.readOnly = true;
+        userNameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+
+        // 顯示登出鈕
+        logoutButton.classList.remove('hidden');
+        logoutButton.onclick = async () => {
+          try {
+            await signOut(auth);
+            sessionStorage.removeItem('loggedInUser');
+          } catch (e) {
+            console.error('Logout failed:', e);
+            showMessage('Failed to log out.', 'bg-red-100 text-red-700');
+          }
         };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // --- Firebase Initialization ---
-        let app, db, auth, userId;
+        // 登入後開始監聽資料
+        setupRealtimeListener();
+      });
+    };
 
-        const initFirebase = async () => {
-            try {
-                if (!app) {
-                    app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                }
+    // Events
+    calcBtn.addEventListener('click', calculatePrice);
+    saveBtn.addEventListener('click', saveRecord);
 
-                // The userId is now obtained from the anonymous sign-in, but is not used to filter.
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // We keep the anonymous userId in case we need to track it, but the new code
-                // will save the user's provided name as a separate field.
-                userId = auth.currentUser.uid;
-                
-                console.log("Firebase initialized and user signed in:", userId);
-
-                // Set up the real-time listener for all public records
-                setupRealtimeListener();
-
-            } catch (error) {
-                console.error("Error initializing Firebase or signing in:", error);
-                showMessage("Failed to connect. Please try again later.", 'bg-red-100 text-red-700');
-            }
-        };
-        
-        // Function to set up the real-time listener for all records in the public collection
-        const setupRealtimeListener = () => {
-            // New: The collection path is now public to match the admin view.
-            const allRecordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-            // We no longer filter by userId, as all records should be shown.
-            const q = query(allRecordsCollectionRef);
-
-            onSnapshot(q, (snapshot) => {
-                const recordsTableBody = document.getElementById('recordsTableBody');
-                recordsTableBody.innerHTML = '';
-                const noRecordsMessage = document.getElementById('noRecords');
-                
-                if (snapshot.empty) {
-                    noRecordsMessage.classList.remove('hidden');
-                } else {
-                    noRecordsMessage.classList.add('hidden');
-                }
-
-                snapshot.forEach((doc) => {
-                    const record = doc.data();
-                    const row = recordsTableBody.insertRow();
-                    row.className = 'bg-white hover:bg-gray-50';
-
-                    // Format the date for display
-                    const date = record.timestamp ? new Date(record.timestamp.toMillis()).toLocaleDateString() : 'N/A';
-
-                    // Add cells with the record data
-                    const cells = [
-                        record.address || 'N/A',
-                        record.room || 'N/A',
-                        record.squareFootage || 'N/A',
-                        `$${(record.price || 0).toFixed(2)}`,
-                        date
-                    ];
-
-                    cells.forEach((text, index) => {
-                        const cell = row.insertCell(index);
-                        cell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
-                        cell.textContent = text;
-                    });
-                });
-            }, (error) => {
-                console.error("Error listening to records:", error);
-                showMessage("Failed to load records.", 'bg-red-100 text-red-700');
-            });
-        };
-        
-        // --- UI Element References ---
-        const userNameInput = document.getElementById('userName'); // New element reference
-        const addressInput = document.getElementById('address');
-        const roomSelect = document.getElementById('room');
-        const squareFootageInput = document.getElementById('squareFootage');
-        const calculateBtn = document.getElementById('calculateBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const resultContainer = document.getElementById('resultContainer');
-        const priceResult = document.getElementById('priceResult');
-        const messageBox = document.getElementById('messageBox');
-        
-        let calculatedPrice = 0;
-
-        // --- Helper Functions ---
-        const showMessage = (text, className) => {
-            messageBox.textContent = text;
-            messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
-            messageBox.classList.remove('hidden');
-            setTimeout(() => {
-                messageBox.classList.add('hidden');
-            }, 5000);
-        };
-
-        const calculatePrice = () => {
-            const squareFootage = parseFloat(squareFootageInput.value);
-            const room = roomSelect.value;
-            
-            if (isNaN(squareFootage) || squareFootage <= 0) {
-                showMessage('Please enter a valid square footage.', 'bg-orange-100 text-orange-700');
-                resultContainer.classList.add('hidden');
-                return;
-            }
-
-            let pricePerSF = 250;
-            
-            calculatedPrice = squareFootage * pricePerSF;
-            priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
-            resultContainer.classList.remove('hidden');
-            saveBtn.disabled = false;
-        };
-
-        const saveRecord = async () => {
-            const userName = userNameInput.value.trim(); // Get the user's name
-            const address = addressInput.value.trim();
-            const room = roomSelect.value;
-            const squareFootage = parseFloat(squareFootageInput.value);
-
-            if (!userName || !address || isNaN(squareFootage) || squareFootage <= 0) {
-                showMessage('Please fill in your name and all fields before saving.', 'bg-orange-100 text-orange-700');
-                return;
-            }
-
-            const recordData = {
-                userName: userName, // New: Store the user-provided name
-                address: address,
-                room: room,
-                squareFootage: squareFootage,
-                price: calculatedPrice,
-                timestamp: serverTimestamp()
-            };
-
-            try {
-                // Save the record to the public collection
-                const recordsCollectionRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-                await addDoc(recordsCollectionRef, recordData);
-                
-                showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
-                
-                // Reset form fields
-                addressInput.value = '';
-                squareFootageInput.value = '';
-                resultContainer.classList.add('hidden');
-                saveBtn.disabled = true;
-
-            } catch (error) {
-                console.error("Error saving record:", error);
-                showMessage('Failed to save record. Please check the console.', 'bg-red-100 text-red-700');
-            }
-        };
-
-        // --- Event Listeners ---
-        calculateBtn.addEventListener('click', calculatePrice);
-        saveBtn.addEventListener('click', saveRecord);
-
-        // Initialize Firebase on window load
-        window.onload = initFirebase;
-
-    </script>
+    // Start
+    window.onload = initFirebase;
+  </script>
 </body>
 </html>
