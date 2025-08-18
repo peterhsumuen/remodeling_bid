@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="login-card bg-white p-8 space-y-6">
+        <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Admin Login</h1>
+        
+        <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" name="username" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" name="password" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div>
+                <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Log In
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        
+        // Your web app's Firebase configuration (same as your main page)
+        const firebaseConfig = {
+          apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
+          authDomain: "remodelingbid.firebaseapp.com",
+          projectId: "remodelingbid",
+          storageBucket: "remodelingbid.firebasestorage.app",
+          messagingSenderId: "232389086436",
+          appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
+          measurementId: "G-R3T0V1XVMV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const messageBox = document.getElementById('messageBox');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            // Simple validation (can be enhanced)
+            if (!username || !password) {
+                showMessage("Please enter both username and password.", 'bg-yellow-100 text-yellow-700');
+                return;
+            }
+
+            try {
+                // Firebase Authentication: Sign in with email and password
+                // NOTE: For this to work, you need to enable Email/Password Sign-in
+                // in your Firebase project's Authentication section and create users.
+                // Firebase uses "email" for the "username" field in signInWithEmailAndPassword.
+                await signInWithEmailAndPassword(auth, username, password);
+                
+                // Store the username in sessionStorage
+                sessionStorage.setItem('loggedInUser', username);
+
+                showMessage("Login successful! Redirecting...", 'bg-green-100 text-green-700');
+                // Redirect to your main page
+                window.location.href = 'index.html'; // Assuming your main page is index.html
+
+            } catch (error) {
+                console.error("Login error:", error.code, error.message);
+                let errorMessage = "Login failed. Please check your credentials.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Invalid username or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email format for username.";
+                }
+                showMessage(errorMessage, 'bg-red-100 text-red-700');
+            }
+        });
+
+        const showMessage = (text, className) => {
+            messageBox.textContent = text;
+            messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        };
+    </script>
+</body>
+</html>
