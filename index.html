@@ -397,7 +397,10 @@
             });
             
             if (!response.ok) {
-                throw new Error(`API response error: ${response.status} ${response.statusText}`);
+                // Check for a specific API error and provide a better message
+                const errorResponse = await response.json();
+                console.error("API response error details:", errorResponse);
+                throw new Error(`API response error: ${response.status} ${response.statusText} - ${JSON.stringify(errorResponse)}`);
             }
 
             const result = await response.json();
