@@ -1,284 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Remodeling Price Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remodeling Price Calculator</title>
 
-  <!-- TailwindCSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .container { max-width: 900px; }
-    .rounded-card { border-radius: 1.5rem; }
-    .shadow-md-custom { box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
-    input, select { transition: all .2s ease-in-out; }
-    input:focus, select:focus { box-shadow: 0 0 0 3px rgba(100,116,139,.5); border-color: #64748b; }
-  </style>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .container { max-width: 900px; }
+    .rounded-card { border-radius: 1.5rem; }
+    .shadow-md-custom { box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
+    input, select { transition: all .2s ease-in-out; }
+    input:focus, select:focus { box-shadow: 0 0 0 3px rgba(100,116,139,.5); border-color: #64748b; }
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #4a90e2;
+        animation: spin 1s ease infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
-  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom mb-8">
-    <div class="flex items-center justify-between mb-2">
-      <h1 class="text-3xl font-bold text-slate-800">Remodeling Price Calculator</h1>
-      <button id="logoutButton" class="hidden px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">
-        Logout
-      </button>
-    </div>
+  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom mb-8">
+    <div class="flex items-center justify-between mb-2">
+      <h1 class="text-3xl font-bold text-slate-800">Remodeling Price Calculator</h1>
+      <button id="logoutButton" class="hidden px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">
+        Logout
+      </button>
+    </div>
 
-    <!-- User Name（自動帶入登入者，唯讀） -->
+    <!-- User Name (Autofilled from login, readonly) -->
+    <div class="mb-6">
+      <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
+      <input
+        type="text"
+        id="userName"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 bg-gray-100 cursor-not-allowed"
+        placeholder="email will appear here"
+        readonly
+      />
+    </div>
+    
+    <!-- PDF Upload and Analysis Section -->
     <div class="mb-6">
-      <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
-      <input
-        type="text"
-        id="userName"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 bg-gray-100 cursor-not-allowed"
-        placeholder="email will appear here"
-        readonly
-      />
+        <h2 class="text-xl font-bold text-slate-800 mb-4">Analyze Blueprint</h2>
+        <div class="flex flex-col items-center justify-center space-y-4">
+            <label for="pdfFile" class="block text-sm font-medium text-gray-700">Upload a PDF Blueprint</label>
+            <input type="file" id="pdfFile" accept="application/pdf"
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+            <button id="analyzePdfButton" disabled
+                    class="w-full md:w-auto px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                Analyze Blueprint
+            </button>
+        </div>
+        <div id="processingStatus" class="mt-4 text-center text-gray-600"></div>
+        <div id="spinnerContainer" class="flex justify-center mt-4 hidden">
+            <div class="spinner"></div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <div>
-        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Project Address</label>
-        <input type="text" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
-      </div>
-      <div>
-        <label for="room" class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
-        <select id="room" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3">
-          <option value="kitchen">Kitchen</option>
-          <option value="bathroom">Bathroom</option>
-          <option value="living_room">Living Room</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="mb-6">
-      <label for="squareFootage" class="block text-sm font-medium text-gray-700 mb-1">Remodeling Square Feet (SF)</label>
-      <input type="number" id="squareFootage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Project Address</label>
+        <input type="text" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+      </div>
+      <div>
+        <label for="room" class="block text-sm font-medium text-gray-700 mb-1">Room Type</label>
+        <select id="room" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3">
+          <option value="kitchen">Kitchen</option>
+          <option value="bathroom">Bathroom</option>
+          <option value="living_room">Living Room</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
 
-    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
-      <button id="calculateBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700">
-        Calculate Price
-      </button>
-      <button id="saveBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-slate-600 bg-slate-100 hover:bg-slate-200" disabled>
-        Save Record
-      </button>
-    </div>
+    <div class="mb-6">
+      <label for="squareFootage" class="block text-sm font-medium text-gray-700 mb-1">Remodeling Square Feet (SF)</label>
+      <input type="number" id="squareFootage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3" />
+    </div>
 
-    <div id="resultContainer" class="text-center p-4 bg-gray-100 rounded-md shadow-inner hidden">
-      <h2 class="text-xl font-semibold text-gray-800">Calculated Price:</h2>
-      <p id="priceResult" class="text-2xl font-bold text-slate-700 mt-2"></p>
-    </div>
+    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
+      <button id="calculateBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700">
+        Calculate Price
+      </button>
+      <button id="saveBtn" class="w-full md:w-1/2 flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-slate-600 bg-slate-100 hover:bg-slate-200" disabled>
+        Save Record
+      </button>
+    </div>
 
-    <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
-  </div>
+    <div id="resultContainer" class="text-center p-4 bg-gray-100 rounded-md shadow-inner hidden">
+      <h2 class="text-xl font-semibold text-gray-800">Calculated Price:</h2>
+      <p id="priceResult" class="text-2xl font-bold text-slate-700 mt-2"></p>
+      <div class="text-sm text-gray-500 mt-2">
+        <span id="autoFilledAddress"></span>
+      </div>
+    </div>
 
-  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom">
-    <h2 class="text-2xl font-bold text-center text-slate-800 mb-4">Your Past Records</h2>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
-      </table>
-      <div id="noRecords" class="text-center text-gray-500 mt-4 hidden">No records found.</div>
-    </div>
-  </div>
+    <div id="messageBox" class="text-center p-3 mt-4 hidden rounded-md" role="alert"></div>
+  </div>
 
-  <!-- App Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  <div class="container mx-auto p-6 bg-white rounded-card shadow-md-custom">
+    <h2 class="text-2xl font-bold text-center text-slate-800 mb-4">Your Past Records</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SF</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+      <div id="noRecords" class="text-center text-gray-500 mt-4 hidden">No records found.</div>
+    </div>
+  </div>
 
-    // Canvas env var fallback
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  <!-- App Script -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.worker.min.js';
+  </script>
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
-      authDomain: "remodelingbid.firebaseapp.com",
-      projectId: "remodelingbid",
-      storageBucket: "remodelingbid.firebasestorage.app",
-      messagingSenderId: "232389086436",
-      appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
-      measurementId: "G-R3T0V1XVMV"
-    };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-    // UI refs
-    const userNameInput   = document.getElementById('userName');
-    const addressInput    = document.getElementById('address');
-    const roomSelect      = document.getElementById('room');
-    const squareInput     = document.getElementById('squareFootage');
-    const calcBtn         = document.getElementById('calculateBtn');
-    const saveBtn         = document.getElementById('saveBtn');
-    const resultContainer = document.getElementById('resultContainer');
-    const priceResult     = document.getElementById('priceResult');
-    const messageBox      = document.getElementById('messageBox');
-    const logoutButton    = document.getElementById('logoutButton');
+    // Canvas env var fallback
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-    let app, db, auth, calculatedPrice = 0;
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDw0ZTTDzVfB-IiLBlK8LlZlLS2sNdDF0U",
+      authDomain: "remodelingbid.firebaseapp.com",
+      projectId: "remodelingbid",
+      storageBucket: "remodelingbid.firebasestorage.app",
+      messagingSenderId: "232389086436",
+      appId: "1:232389086436:web:50f47b5a2f9176eea570f1",
+      measurementId: "G-R3T0V1XVMV"
+    };
 
-    const showMessage = (text, className) => {
-      messageBox.textContent = text;
-      messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
-      messageBox.classList.remove('hidden');
-      setTimeout(() => messageBox.classList.add('hidden'), 5000);
-    };
+    // UI refs
+    const userNameInput   = document.getElementById('userName');
+    const addressInput    = document.getElementById('address');
+    const roomSelect      = document.getElementById('room');
+    const squareInput     = document.getElementById('squareFootage');
+    const calcBtn         = document.getElementById('calculateBtn');
+    const saveBtn         = document.getElementById('saveBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const priceResult     = document.getElementById('priceResult');
+    const messageBox      = document.getElementById('messageBox');
+    const logoutButton    = document.getElementById('logoutButton');
+    
+    // PDF elements
+    const pdfFile = document.getElementById('pdfFile');
+    const analyzePdfButton = document.getElementById('analyzePdfButton');
+    const processingStatus = document.getElementById('processingStatus');
+    const spinnerContainer = document.getElementById('spinnerContainer');
 
-    const calculatePrice = () => {
-      const sf = parseFloat(squareInput.value);
-      if (isNaN(sf) || sf <= 0) {
-        showMessage('Please enter a valid square footage.', 'bg-orange-100 text-orange-700');
-        resultContainer.classList.add('hidden');
+    let app, db, auth, calculatedPrice = 0;
+
+    const showMessage = (text, className) => {
+      messageBox.textContent = text;
+      messageBox.className = `text-center p-3 mt-4 rounded-md ${className}`;
+      messageBox.classList.remove('hidden');
+      setTimeout(() => messageBox.classList.add('hidden'), 5000);
+    };
+    
+    const showLoading = (text) => {
+        processingStatus.textContent = text;
+        spinnerContainer.classList.remove('hidden');
+        analyzePdfButton.disabled = true;
+        calcBtn.disabled = true;
         saveBtn.disabled = true;
-        return;
-      }
-      const pricePerSF = 250; // 可按需求調整/動態化
-      calculatedPrice = sf * pricePerSF;
-      priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
-      resultContainer.classList.remove('hidden');
-      saveBtn.disabled = false;
     };
 
-    const saveRecord = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        showMessage('Session expired. Please log in again.', 'bg-red-100 text-red-700');
-        window.location.href = 'login.html';
-        return;
-      }
-
-      const email = sessionStorage.getItem('loggedInUser') || user.email || '';
-      const address = addressInput.value.trim();
-      const room = roomSelect.value;
-      const sf = parseFloat(squareInput.value);
-
-      if (!email || !address || isNaN(sf) || sf <= 0) {
-        showMessage('Please fill in all fields before saving.', 'bg-orange-100 text-orange-700');
-        return;
-      }
-
-      const recordData = {
-        userName: email,             // 強制用登入者 email
-        address,
-        room,
-        squareFootage: sf,
-        price: calculatedPrice,
-        timestamp: serverTimestamp()
-      };
-
-      try {
-        const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-        await addDoc(recordsRef, recordData);
-
-        showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
-        addressInput.value = '';
-        squareInput.value = '';
-        resultContainer.classList.add('hidden');
-        saveBtn.disabled = true;
-      } catch (err) {
-        console.error('Error saving record:', err);
-        showMessage('Failed to save record. Please check the console.', 'bg-red-100 text-red-700');
-      }
+    const hideLoading = (text) => {
+        processingStatus.textContent = text;
+        spinnerContainer.classList.add('hidden');
+        analyzePdfButton.disabled = false;
+        calcBtn.disabled = false;
+        saveBtn.disabled = false;
     };
 
-    const setupRealtimeListener = () => {
-      const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
-      const q = query(recordsRef);
+    const calculatePrice = () => {
+      const sf = parseFloat(squareInput.value);
+      if (isNaN(sf) || sf <= 0) {
+        showMessage('Please enter a valid square footage.', 'bg-orange-100 text-orange-700');
+        resultContainer.classList.add('hidden');
+        saveBtn.disabled = true;
+        return;
+      }
+      const pricePerSF = 250; // Customizable/dynamic as needed
+      calculatedPrice = sf * pricePerSF;
+      priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
+      resultContainer.classList.remove('hidden');
+      saveBtn.disabled = false;
+    };
 
-      onSnapshot(q, (snapshot) => {
-        const tbody = document.getElementById('recordsTableBody');
-        const noRecords = document.getElementById('noRecords');
-        tbody.innerHTML = '';
+    const saveRecord = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage('Session expired. Please log in again.', 'bg-red-100 text-red-700');
+        window.location.href = 'login.html';
+        return;
+      }
 
-        if (snapshot.empty) {
-          noRecords.classList.remove('hidden');
-          return;
+      const email = sessionStorage.getItem('loggedInUser') || user.email || '';
+      const address = addressInput.value.trim();
+      const room = roomSelect.value;
+      const sf = parseFloat(squareInput.value);
+
+      if (!email || !address || isNaN(sf) || sf <= 0) {
+        showMessage('Please fill in all fields before saving.', 'bg-orange-100 text-orange-700');
+        return;
+      }
+
+      const recordData = {
+        userName: email,
+        address,
+        room,
+        squareFootage: sf,
+        price: calculatedPrice,
+        timestamp: serverTimestamp()
+      };
+
+      try {
+        const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+        await addDoc(recordsRef, recordData);
+
+        showMessage('Record saved successfully!', 'bg-green-100 text-green-700');
+        addressInput.value = '';
+        squareInput.value = '';
+        resultContainer.classList.add('hidden');
+        saveBtn.disabled = true;
+      } catch (err) {
+        console.error('Error saving record:', err);
+        showMessage('Failed to save record. Please check the console.', 'bg-red-100 text-red-700');
+      }
+    };
+
+    const setupRealtimeListener = () => {
+      const recordsRef = collection(db, `artifacts/${appId}/public/data/remodeling_records`);
+      const q = query(recordsRef);
+
+      onSnapshot(q, (snapshot) => {
+        const tbody = document.getElementById('recordsTableBody');
+        const noRecords = document.getElementById('noRecords');
+        tbody.innerHTML = '';
+
+        if (snapshot.empty) {
+          noRecords.classList.remove('hidden');
+          return;
+        }
+        noRecords.classList.add('hidden');
+
+        snapshot.forEach((doc) => {
+          const r = doc.data();
+          const tr = tbody.insertRow();
+          tr.className = 'bg-white hover:bg-gray-50';
+
+          const date = r.timestamp ? new Date(r.timestamp.toMillis()).toLocaleDateString() : 'N/A';
+          const cells = [
+            r.address || 'N/A',
+            r.room || 'N/A',
+            r.squareFootage || 'N/A',
+            `$${(r.price || 0).toFixed(2)}`,
+            date
+          ];
+
+          cells.forEach((text, i) => {
+            const td = tr.insertCell(i);
+            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+            td.textContent = text;
+          });
+        });
+      }, (err) => {
+        console.error('Error listening to records:', err);
+        showMessage('Failed to load records.', 'bg-red-100 text-red-700');
+      });
+    };
+
+    const initFirebase = async () => {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+
+      // Listen for login state changes
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+        // Fill and lock the user's email
+        const email = sessionStorage.getItem('loggedInUser') || user.email || 'Unknown';
+        userNameInput.value = email;
+        userNameInput.readOnly = true;
+        userNameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+
+        // Show the logout button
+        logoutButton.classList.remove('hidden');
+        logoutButton.onclick = async () => {
+          try {
+            await signOut(auth);
+            sessionStorage.removeItem('loggedInUser');
+          } catch (e) {
+            console.error('Logout failed:', e);
+            showMessage('Failed to log out.', 'bg-red-100 text-red-700');
+          }
+        };
+
+        // Start listening for data after login
+        setupRealtimeListener();
+      });
+    };
+
+    // --- PDF and Gemini Integration Logic ---
+    const processWithGemini = async (base64Images) => {
+        try {
+            // New comprehensive prompt
+            const prompt = `You are an AI assistant for a remodeling company. Your task is to analyze a blueprint image, extract key information, and then use that information to perform a project price calculation.
+
+            1.  **Extraction Task:** Identify and extract the project address and the total square footage number from the blueprint.
+            2.  **Calculation Task:** Using the extracted square footage, calculate the "Total Project Price" with the following formula:
+                (Total Remodel Square Footage x $250) + $8,000 + $15,000 = Total Project Price
+            3.  **Output Task:** Provide a JSON response that contains the extracted information and the final calculated price.
+
+            **Output Format:**
+            {
+              "projectAddress": "[Extracted Project Address]",
+              "squareFootage": "[Extracted Square Footage]",
+              "calculatedPrice": "[Calculated Total Price]"
+            }
+
+            If a value cannot be found, use "N/A" for that specific key. Only provide the JSON object. Do not include any other text or descriptions.`;
+
+            const parts = [{ text: prompt }];
+
+            base64Images.forEach(base64Data => {
+                parts.push({
+                    inlineData: {
+                        mimeType: "image/png",
+                        data: base64Data
+                    }
+                });
+            });
+
+            const payload = { 
+                contents: [{ parts }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "projectAddress": { "type": "STRING" },
+                            "squareFootage": { "type": "STRING" },
+                            "calculatedPrice": { "type": "NUMBER" }
+                        }
+                    }
+                }
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API response error: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            const jsonString = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (!jsonString) {
+                throw new Error("API response did not contain a valid JSON string.");
+            }
+
+            const parsedData = JSON.parse(jsonString);
+            
+            // Auto-fill form fields
+            if (parsedData.projectAddress && parsedData.projectAddress !== "N/A") {
+                addressInput.value = parsedData.projectAddress;
+            }
+            
+            if (parsedData.squareFootage && parsedData.squareFootage !== "N/A") {
+                squareInput.value = parsedData.squareFootage;
+            }
+
+            // Update price display
+            calculatedPrice = parsedData.calculatedPrice;
+            priceResult.textContent = `$${calculatedPrice.toLocaleString()}`;
+            resultContainer.classList.remove('hidden');
+
+            hideLoading("Analysis complete!");
+            showMessage("Blueprint information has been filled in.", 'bg-green-100 text-green-700');
+            saveBtn.disabled = false;
+
+        } catch (error) {
+            console.error("Gemini API call error:", error);
+            hideLoading("Analysis failed. Please ensure the image content is clear.");
+            showMessage("An error occurred while calling the Gemini service.", 'bg-red-100 text-red-700');
         }
-        noRecords.classList.add('hidden');
-
-        snapshot.forEach((doc) => {
-          const r = doc.data();
-          const tr = tbody.insertRow();
-          tr.className = 'bg-white hover:bg-gray-50';
-
-          const date = r.timestamp ? new Date(r.timestamp.toMillis()).toLocaleDateString() : 'N/A';
-          const cells = [
-            r.address || 'N/A',
-            r.room || 'N/A',
-            r.squareFootage || 'N/A',
-            `$${(r.price || 0).toFixed(2)}`,
-            date
-          ];
-
-          cells.forEach((text, i) => {
-            const td = tr.insertCell(i);
-            td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
-            td.textContent = text;
-          });
-        });
-      }, (err) => {
-        console.error('Error listening to records:', err);
-        showMessage('Failed to load records.', 'bg-red-100 text-red-700');
-      });
     };
-
-    const initFirebase = async () => {
-      app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-
-      // 監聽登入狀態
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.location.href = 'login.html';
-          return;
-        }
-        // 填入與鎖定使用者 email
-        const email = sessionStorage.getItem('loggedInUser') || user.email || 'Unknown';
-        userNameInput.value = email;
-        userNameInput.readOnly = true;
-        userNameInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-
-        // 顯示登出鈕
-        logoutButton.classList.remove('hidden');
-        logoutButton.onclick = async () => {
-          try {
-            await signOut(auth);
-            sessionStorage.removeItem('loggedInUser');
-          } catch (e) {
-            console.error('Logout failed:', e);
-            showMessage('Failed to log out.', 'bg-red-100 text-red-700');
-          }
-        };
-
-        // 登入後開始監聽資料
-        setupRealtimeListener();
-      });
-    };
-
-    // Events
+    
+    // --- Event Listeners ---
     calcBtn.addEventListener('click', calculatePrice);
     saveBtn.addEventListener('click', saveRecord);
 
-    // Start
-    window.onload = initFirebase;
-  </script>
+    pdfFile.addEventListener('change', (event) => {
+        if (event.target.files.length > 0) {
+            analyzePdfButton.disabled = false;
+        } else {
+            analyzePdfButton.disabled = true;
+        }
+    });
+
+    analyzePdfButton.addEventListener('click', async () => {
+        const file = pdfFile.files[0];
+        if (!file) {
+            showMessage("Please select a PDF file first.", 'bg-yellow-100 text-yellow-700');
+            return;
+        }
+
+        if (file.type !== 'application/pdf') {
+            showMessage("Please upload a file in PDF format.", 'bg-red-100 text-red-700');
+            return;
+        }
+
+        showLoading("Analyzing your blueprint... This may take a few seconds...");
+
+        try {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+
+            reader.onload = async (event) => {
+                const pdfData = new Uint8Array(event.target.result);
+                const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                
+                let base64Images = [];
+                // Process only the first page for simplicity
+                const page = await pdfDoc.getPage(1);
+                const viewport = page.getViewport({ scale: 1.5 });
+                const canvas = document.createElement('canvas');
+                const canvasContext = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({ canvasContext, viewport }).promise;
+                base64Images.push(canvas.toDataURL('image/png').split(',')[1]);
+
+                await processWithGemini(base64Images);
+            };
+        } catch (error) {
+            console.error("PDF analysis error:", error);
+            hideLoading("Analysis failed. Please try again.");
+            showMessage("An error occurred while analyzing the PDF file.", 'bg-red-100 text-red-700');
+        }
+    });
+
+    // Start
+    window.onload = initFirebase;
+  </script>
 </body>
 </html>
